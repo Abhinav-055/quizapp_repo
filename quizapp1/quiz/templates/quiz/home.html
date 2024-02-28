@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000; /* Black */
+            color: #00ff00; /* Neon Green */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .create-quiz-btn,
+        .start-btn {
+            background-color: #00ff00; /* Neon Green */
+            color: #000; /* Black */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .start-btn:hover,
+        .create-quiz-btn:hover {
+            background-color: #008000; /* Darker Neon Green */
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            color: #00ff00; /* Neon Green */
+        }
+
+        p {
+            color: #bdc3c7; /* Light Gray */
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <a href="{% url 'quiz:quiz_list' %}" class="start-btn">Start Quiz</a>
+        <button class="create-quiz-btn" onclick="location.href='{% url 'quiz:create_quiz' %}'">Create Quiz</button>
+    </div>
+
+    <div class="container">
+        <h1>Welcome to the Quiz App</h1>
+        <p>Test your knowledge with our exciting quizzes!</p>
+    </div>
+
+</body>
+
+</html>

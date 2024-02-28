@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz List</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #222;
+            color: #00ff00; /* Green text color */
+            margin: 20px;
+        }
+
+        h2 {
+            color: #00ff00; /* Green text color */
+        }
+
+        a {
+            color: #00ff00; /* Green text color */
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Quiz List</h2>
+    <a href="{% url 'quiz:create_quiz' %}">Create Quiz</a>
+    <ul>
+        <!-- Iterate over the list of quizzes and display each one -->
+        {% for quiz in quiz_list %}
+            <li>
+                <a href="{% url 'quiz:quiz_detail' quiz.id %}">{{ quiz.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

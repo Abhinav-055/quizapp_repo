@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1f1f1f;
+            color: #ffffff;
+            margin: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: auto;
+        }
+
+        form {
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            background-color: #333;
+            border: 2px solid #00cc44;
+            box-sizing: border-box;
+        }
+
+        .question-form {
+            border: 1px solid #00cc44;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #444;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="checkbox"] {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #00cc44;
+            border-radius: 4px;
+            background-color: #555;
+            color: #ffffff;
+        }
+
+        .add-option,
+        .delete-question,
+        .delete-option,
+        .submit-btn {
+            background-color: #00cc44;
+            color: #ffffff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .delete-question,
+        .delete-option {
+            background-color: #ff3333;
+        }
+
+        .add-option:hover,
+        .delete-question:hover,
+        .delete-option:hover,
+        .submit-btn:hover {
+            background-color: #009933;
+        }
+
+        /* Style the formset container */
+        #questions-formset {
+            margin-top: 20px;
+        }
+
+        /* Style the dynamically added options formset */
+        .options-formset {
+            border: 1px solid #00cc44;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            background-color: #444;
+        }
+
+        /* Style the hidden options formset */
+        #options-formset {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<form method="post" action="{% url 'quiz:create_quiz' %}">
+    {% csrf_token %}
+    <h1>Create your quiz</h1>
+    {{ quiz_form.as_p }}
+    
+    {{ question_formset.management_form }}
+    <!-- Question FormSet -->
+    <div id="questions-formset">
+        {% for form in question_formset %}
+    <div class="question-form">
+        <label for="{{ form.id_for_label }}">Quiz Text:</label>
+        {{ form.text }}
+        
+        
+        <!-- Options FormSet for each question (rendered separately) -->
+        <div class="options-formset" id="options-formset-{{ forloop.counter0 }}"></div>
+
+        <!-- You can add more styling or customization here as needed -->
+
+    </div>
+{% endfor %}
+    </div>
+
+    <button type="button" id="add-question">Add Question</button>
+    <button type="submit">Create Quiz</button>
+
+    <!-- Options FormSet (rendered once) -->
+    <div id="options-formset" style="display: none;">
+        {{ question_formset.empty_form.management_form }}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let questionCounter = document.querySelectorAll('.question-form').length;
+            let optionCounters = [];
+
+            function addQuestionForm() {
+                const formset = document.getElementById('questions-formset');
+
+                const newForm = document.createElement('div');
+                newForm.className = 'question-form';
+                newForm.innerHTML = `
+                    <label for="id_questions-${questionCounter}-text">Question Text:</label>
+                    <input type="text" name="questions-${questionCounter}-text" required>
+
+                    <label for="id_questions-${questionCounter}-delete">Delete:</label>
+                    <button type="button" class="delete-question">Delete Question</button>
+                    <br>
+
+                    <button type="button" class="add-option" data-question-index="${questionCounter}">Add Option</button>
+                    <br>
+
+                    <div class="options-formset" id="options-formset-${questionCounter}"></div>
+                `;
+
+                newForm.style.marginTop = '10px';
+                formset.appendChild(newForm);
+                questionCounter++;
+
+                optionCounters.push(0);
+
+                attachDynamicQuestionEventListeners(newForm);
+            }
+
+            function attachDynamicQuestionEventListeners(questionForm) {
+                questionForm.querySelector('.delete-question').addEventListener('click', function() {
+                    questionForm.remove();
+                });
+
+                questionForm.querySelector('.add-option').addEventListener('click', function() {
+                    const questionIndex = this.getAttribute('data-question-index');
+                    addOptionForm(questionIndex);
+                });
+            }
+
+            function addOptionForm(questionIndex) {
+                const optionsFormset = document.getElementById(`options-formset-${questionIndex}`);
+                const hiddenOptionsFormset = document.getElementById('options-formset');
+                const newOptionsFormset = hiddenOptionsFormset.cloneNode(true);
+                newOptionsFormset.style.display = 'block';
+
+                const optionIndex = optionCounters[questionIndex]++;
+                const optionsFormsetId = `id_questions-${questionIndex}-options-${optionIndex}`;
+
+                const optionForms = newOptionsFormset.querySelectorAll('.option-form');
+                optionForms.forEach(function(optionForm) {
+                    optionForm.innerHTML = optionForm.innerHTML.replace(/__prefix__/g, optionsFormsetId);
+                });
+
+                newOptionsFormset.style.marginTop = '5px';
+                optionsFormset.appendChild(newOptionsFormset);
+            }
+
+            document.getElementById('add-question').addEventListener('click', function() {
+                addQuestionForm();
+            });
+
+            document.addEventListener('click', function(event) {
+                if (event.target.classList.contains('delete-option')) {
+                    const optionForm = event.target.closest('.option-form');
+                    optionForm.remove();
+                }
+            });
+
+            document.querySelector('form').addEventListener('submit', function() {
+                serializeDynamicForms();
+            });
+
+            function serializeDynamicForms() {
+                const dynamicForms = document.querySelectorAll('.question-form');
+                dynamicForms.forEach(function(form, index) {
+                    const options = form.querySelectorAll('.option-form');
+                    options.forEach(function(option, optionIndex) {
+                        option.querySelectorAll('input').forEach(function(input) {
+                            input.name = input.name.replace(/\d+/g, index).replace(/\d+/g, optionIndex);
+                        });
+                    });
+                });
+            }
+        });
+    </script>
+</form>
+
+</body>
+</html>

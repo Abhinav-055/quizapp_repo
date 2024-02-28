@@ -1,0 +1,106 @@
+<!-- quiz/quiz_detail.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ quiz.title }}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #00FF00;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #00FF00;
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            color: #00FF00;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #00FF00;
+        }
+
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        #timer {
+            margin-top: 20px;
+            color: #00FF00;
+        }
+    </style>
+</head>
+<body>
+
+<h1>{{ quiz.title }}</h1>
+
+<div id="quiz-container">
+    {% for question in quiz.questions.all %}
+        <div class="question" id="question{{ question.id }}">
+            <h3>{{ question.text }}</h3>
+
+            {% for option in question.options.all %}
+                <label>
+                    <input type="radio" name="question{{ question.id }}" value="{{ option.id }}">
+                    {{ option.text }}
+                </label>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    <div id="timer">Time Remaining: <span id="time">0:00</span></div>
+
+    <button onclick="submitQuiz()">Submit Quiz</button>
+</div>
+
+<script>
+    const quizContainer = document.getElementById('quiz-container');
+    const timerElement = document.getElementById('time');
+
+    let timeLimit = 300; // 5 minutes in seconds
+    let timer;
+
+    function startTimer() {
+        timer = setInterval(function () {
+            const minutes = Math.floor(timeLimit / 60);
+            const seconds = timeLimit % 60;
+
+            timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+            if (timeLimit <= 0) {
+                clearInterval(timer);
+                submitQuiz();
+            }
+
+            timeLimit--;
+        }, 1000);
+    }
+
+    startTimer();
+
+    function submitQuiz() {
+        clearInterval(timer);
+        alert('Quiz submitted!');
+    }
+</script>
+
+</body>
+</html>
